@@ -8,7 +8,7 @@ require 'shellwords'
 
 # R2Pipe is an easy way to communicate with an r2 core through ruby
 class R2Pipe
-  def initialize(file = nil)
+  def initialize(file = nil, flags = nil)
     @file = file
     if file.nil?
       fd_in, fd_out = getfds
@@ -16,7 +16,7 @@ class R2Pipe
       @write = IO.new(fd_out, 'w')
       @pid = -1
     else
-      execute file
+      execute file, flags
     end
   end
 
@@ -57,8 +57,8 @@ class R2Pipe
     [fd_in, fd_out]
   end
 
-  def execute(file)
-    exec = "radare2 -q0 #{Shellwords.shellescape file} 2>/dev/null"
+  def execute(file, flags = nil)
+    exec = "radare2 #{flags} -q0 #{Shellwords.shellescape file} 2>/dev/null"
     write, read, wait_thr = Open3.popen2(exec)
     @read = read
     @write = write
